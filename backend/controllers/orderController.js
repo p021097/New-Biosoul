@@ -49,7 +49,7 @@ const placeOrder = async (req, res) => {
       success: true,
       session_url: session.url,
       orderId: newOrder._id,
-      message: "Order placed successfully, redirecting to order...",
+      message: "Redirecting to payment page...",
     });
   } catch (error) {
     console.log(error);
@@ -80,7 +80,41 @@ const verifyOrder = async (req, res) => {
 
 
 // User Orders for frontend
-const usersOrder = async (req,res) =>{}
+const usersOrder = async (req,res) =>{
+  try {
+    const orders = await orderModel.find({userId:req.userId});
+    res.json({success:true, data:orders});
+  } catch (error) {
+    console.log(error);
+    res.json({success:false, message:"Error"})
+    
+  }
+}
 
 
-export { placeOrder, verifyOrder, usersOrder };
+// Listing orders for admin panel
+
+const listOrders = async(req, res)=>{
+    try {
+      const orders = await orderModel.find({})
+      res.json({success:true, data:orders, message:"Orders fetched successfully"})
+    } catch (error) {
+      res.json({success:false, message:"Error fetching in orders"})
+    }
+}
+
+
+// Api for updating order status
+
+const updateOrderStatus = async (req,res) =>{
+  try {
+    await orderModel.findByIdAndUpdate(req.body.orderId,{status:req.body.status});
+    res.json({success:true, message:"Updated order status"})
+  } catch (error) {
+    res.json({success:false, message:"Error in updating order status"})
+  }
+}
+
+
+
+export { placeOrder, verifyOrder, usersOrder, listOrders, updateOrderStatus };

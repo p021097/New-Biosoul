@@ -8,6 +8,8 @@ const StoreContextProvider = (props) => {
   const url = "http://localhost:4000";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
+  const [orderData, setOrderData] = useState([]);
+
 
   const fetchFoodList = async () => {
     const response = await axios.get(`${url}/api/food/list`);
@@ -53,11 +55,31 @@ const StoreContextProvider = (props) => {
     for (const item in cartItems) {
       if (cartItems[item] > 0) {
         let itemInfo = food_list.find((product) => product._id === item);
+        if (!itemInfo) {
+          continue;
+        }
         totalAmount += itemInfo.price * cartItems[item];
       }
     }
     return totalAmount;
   };
+
+
+const fetchOrders = async () => {
+    const response = await axios.post(
+      `${url}/api/order/userorders`,
+      {},
+      { headers: { token } },
+    );
+    setOrderData(response.data.data);
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchOrders();
+    }
+  }, [token]);
+
 
   useEffect(() => {
     async function fetchData() {
@@ -80,6 +102,9 @@ const StoreContextProvider = (props) => {
     url,
     token,
     setToken,
+    fetchOrders,
+    orderData, 
+    setOrderData
   };
 
   return (

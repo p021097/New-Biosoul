@@ -8,16 +8,14 @@ const StoreContextProvider = (props) => {
   const url = "http://localhost:4000";
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const [allOrders, setAllOrders] = useState([]);
   const [data, setData] = useState({
     name: "",
     description: "",
     category: "Salad",
     price: "",
   });
-
   // Inline Editing the food Item
-
   const [list, setList] = useState([]); // State to hold the list of food items
   const [editingItemId, setEditingItemId] = useState(null); // State to track which item is being edited
   const [editData, setEditData] = useState({
@@ -27,17 +25,40 @@ const StoreContextProvider = (props) => {
     price: "",
   }); // State to hold the edited data
   const [editImage, setEditImage] = useState(null); // State to hold the new image file for editing
-
-  useEffect(() => {
-    if (image) {
-      const previewUrl = URL.createObjectURL(image);
-      setImagePreview(previewUrl);
-
-      return () => URL.revokeObjectURL(previewUrl);
-    } else {
-      setImagePreview(null);
+  
+  
+  
+  
+  // Function to fetch all orders for admin panel
+ 
+  const fetchAllOrders = async() =>{
+    const response = await axios.get(`${url}/api/order/list`);
+    if(response.data.success){
+      // toast.success(response.data.message)
+      setAllOrders(response.data.data)
+      console.log(response.data.data);
+      
+    }else{
+      toast.error(response.data.message)
     }
-  }, [image]);
+  }
+
+
+  // Order Status Handler
+  const statusHandler = async (event, orderId) =>{
+    const response = await axios.post(`${url}/api/order/status`,{orderId,status:event.target.value});
+    if(response.data.success){
+      await fetchAllOrders();
+      toast.success(response.data.message)
+    }
+    
+  }
+
+
+
+
+
+
 
   const onChangeHandler = (e) => {
     const name = e.target.name;
@@ -69,8 +90,7 @@ const StoreContextProvider = (props) => {
     }
   };
 
-
-// Fetch food list
+  // Fetch food list
   const fetchlist = async () => {
     const response = await axios.get(`${url}/api/food/list`);
     if (response.data.success) {
@@ -80,24 +100,22 @@ const StoreContextProvider = (props) => {
     }
   };
 
-
-// Remove food item
+  // Remove food item
   const removeFoodItem = async (foodId) => {
-  const response = await axios.post(`${url}/api/food/remove`, { id: foodId });
-  if (response.data.success) {
-    toast.success(response.data.message);
-    fetchlist(); // Refresh the list after removal
-  } else {
-    toast.error("Failed to remove food item");
-  }
+    const response = await axios.post(`${url}/api/food/remove`, { id: foodId });
+    if (response.data.success) {
+      toast.success(response.data.message);
+      fetchlist(); // Refresh the list after removal
+    } else {
+      toast.error("Failed to remove food item");
+    }
   };
 
-
-// Food Item Edit Handlers
+  // Food Item Edit Handlers
   const startEdit = (item) => {
     setEditingItemId(item._id);
     setEditData({
-      name: item.name || "",  
+      name: item.name || "",
       description: item.description || "",
       category: item.category || "",
       price: item.price || "",
@@ -105,7 +123,7 @@ const StoreContextProvider = (props) => {
     setEditImage(null); // Reset edit image when starting to edit
   };
 
-// cancel Edit
+  // cancel Edit
   const cancelEdit = () => {
     setEditingItemId(null);
     setEditData({
@@ -117,13 +135,13 @@ const StoreContextProvider = (props) => {
     setEditImage(null);
   };
 
-// handle Edit Change
+  // handle Edit Change
   const handleEditChange = (e) => {
-    const {name, value} = e.target;
+    const { name, value } = e.target;
     setEditData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-// Save Edit
+  // Save Edit
   const saveEdit = async () => {
     const formData = new FormData();
     formData.append("id", editingItemId);
@@ -139,11 +157,32 @@ const StoreContextProvider = (props) => {
       toast.success("Food item updated successfully");
       await fetchlist(); // Refresh the list after saving edits
       cancelEdit();
-    }else {
+    } else {
       toast.error(response.data.message || "Failed to update food item");
-    }};
+    }
+  };
 
-    useEffect(() => {
+
+
+// UseEffects
+
+
+  useEffect(()=>{
+    fetchAllOrders();
+  },[])
+
+  useEffect(() => {
+    if (image) {
+      const previewUrl = URL.createObjectURL(image);
+      setImagePreview(previewUrl);
+
+      return () => URL.revokeObjectURL(previewUrl);
+    } else {
+      setImagePreview(null);
+    }
+  }, [image]);
+
+  useEffect(() => {
     fetchlist();
   }, []);
 
@@ -168,6 +207,9 @@ const StoreContextProvider = (props) => {
     cancelEdit,
     setEditImage,
     startEdit,
+    allOrders,
+    setAllOrders,
+    statusHandler
   };
 
   return (
