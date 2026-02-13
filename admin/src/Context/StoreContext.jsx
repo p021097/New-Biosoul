@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 
 const StoreContextProvider = (props) => {
-  const url = "http://localhost:4000";
+  const url = "https://new-biosoul-backend.onrender.com";
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [allOrders, setAllOrders] = useState([]);
