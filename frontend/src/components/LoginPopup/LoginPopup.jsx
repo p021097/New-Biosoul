@@ -5,14 +5,16 @@ import { StoreContext } from "../../Context/StoreContext";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const LoginPopup = ({ setShowLogin }) => {
-  const { url,setToken } = useContext(StoreContext);
+const LoginPopup = ({ setShowLogin, role = "user" }) => {
+  const { url, setToken } = useContext(StoreContext);
   const [currState, setCurrState] = useState("Login");
   const [data, setData] = useState({
     name: "",
     email: "",
     password: "",
   });
+
+  const isCompany = role === "company";
 
   const onChangeHandler = (e) => {
     setData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -23,26 +25,31 @@ const LoginPopup = ({ setShowLogin }) => {
     e.preventDefault();
     let newUrl = url;
     if (currState === "Login") {
-      newUrl += "/api/user/login";
-      const response = await axios.post(newUrl,data);
-      if(response.data.success){
+      newUrl += isCompany ? "/api/user/login-admin" : "/api/user/login";
+
+      const response = await axios.post(newUrl, data);
+      if (response.data.success) {
+        if (isCompany) {
+          const adminUrl = import.meta.env.VITE_ADMIN_URL || "http://localhost:5174";
+          window.location.href = adminUrl;
+          return;
+        }
         setToken(response.data.token);
-        localStorage.setItem("token",response.data.token);
-        setShowLogin(false);
+        localStorage.setItem("token", response.data.token);
+        setShowLogin({ open: false, role: "user" });
         toast.success("Login Successful");
-      }else{
+      } else {
         toast.error(response.data.message, "Error");
       }
-      
-    }else{
+    } else {
       newUrl += "/api/user/register";
-      const response = await axios.post(newUrl,data);
-      if(response.data.success){
+      const response = await axios.post(newUrl, data);
+      if (response.data.success) {
         setToken(response.data.token);
-        localStorage.setItem("token",response.data.token);
-        setShowLogin(false);
+        localStorage.setItem("token", response.data.token);
+        setShowLogin({ open: false, role: "user" });
         toast.success("Register Successful");
-      }else{
+      } else {
         toast.error(response.data.message, "Error");
       }
     }
@@ -52,15 +59,15 @@ const LoginPopup = ({ setShowLogin }) => {
     <div className="login-popup">
       <form onSubmit={onLogin} action="" className="login-popup-container">
         <div className="login-popup-title">
-          <h2>{currState}</h2>
+          <h2>{isCompany ? "Company Login" : currState}</h2>
           <img
-            onClick={() => setShowLogin(false)}
+            onClick={() => setShowLogin({ open: false, role: "user" })}
             src={assets.cross_icon}
             alt=""
           />
         </div>
         <div className="login-popup-inputs">
-          {currState === "Login" ? (
+          {currState === "Login" || isCompany ? (
             <></>
           ) : (
             <input
@@ -96,7 +103,11 @@ const LoginPopup = ({ setShowLogin }) => {
           <input type="checkbox" required />
           <p>By continuing, i agree to the terms of use & privacy policy.</p>
         </div>
-        {currState === "Login" ? (
+        {isCompany ? (
+          <p className="login-popup-note">
+            To register, please contact the administrator.
+          </p>
+        ) : currState === "Login" ? (
           <p>
             Create a new account?{" "}
             <span onClick={() => setCurrState("Sign Up")}>Click here</span>

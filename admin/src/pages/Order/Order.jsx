@@ -4,7 +4,7 @@ import { StoreContext } from "../../Context/StoreContext.jsx";
 import { assets } from "../../assets/assets.js";
 
 const Order = () => {
-  const { allOrders,statusHandler } = useContext(StoreContext);
+  const { allOrders, statusHandler } = useContext(StoreContext);
 
   return (
     <div className="order add">
@@ -16,7 +16,11 @@ const Order = () => {
           )
           .map((order, index) => (
             <div className="order-item" key={index}>
-              <img src={assets.parcel_icon} alt="" />
+              <div>
+                <img src={assets.parcel_icon} alt="" />
+                <p>Order Id: {order._id}</p>
+              </div>
+
               <div>
                 <p className="order-item-food">
                   {order.items.map((item, index) => {
@@ -47,7 +51,10 @@ const Order = () => {
               </div>
               <p>Items : {order.items.length}</p>
               <p>Total amount : {order.amount}</p>
-              <select onChange={(event)=>statusHandler(event,order._id)} value={order.status}>
+              <select
+                onChange={(event) => statusHandler(event, order._id)}
+                value={order.status}
+              >
                 <option value="Food Processing">Food Processing</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Out for delivery"> Out for delivery</option>

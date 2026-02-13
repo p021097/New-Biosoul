@@ -54,8 +54,8 @@ const Navbar = ({ setShowLogin }) => {
           </Link>
           <div className={getTotalCartAmount()===0?"":"dot"}></div>
         </div>
-        {
-          !token?<button onClick={() => setShowLogin(true)}>sign in</button>:
+        {/* {
+          !token?(<button onClick={() => setShowLogin(true)}>sign in</button>):(
           <div className="navbar-profile">
             <img src={assets.profile_icon} alt="" />
             <ul className="nav-profile-dropdown">
@@ -63,7 +63,23 @@ const Navbar = ({ setShowLogin }) => {
               <hr />
               <li onClick={logout} ><img src={assets.logout_icon} alt="" /><p>Logout</p></li>
             </ul>
-          </div>
+          </div>)
+        } */}
+        {
+          !token?(
+            <div className="navbar-auth-buttons">
+              <button onClick={()=>setShowLogin({open:true, role:"user"})}>Login as User</button>
+              <button onClick={()=>setShowLogin({open:true, role:"company"})}>Login as Company</button>
+            </div>
+          ):(
+          <div className="navbar-profile">
+            <img src={assets.profile_icon} alt="" />
+            <ul className="nav-profile-dropdown">
+              <li onClick={()=>navigate('/myorders')}><img src={assets.bag_icon} alt="" /><p>My Orders</p></li>
+              <hr />
+              <li onClick={logout} ><img src={assets.logout_icon} alt="" /><p>Logout</p></li>
+            </ul>
+          </div>)
         }
       </div>
     </div>

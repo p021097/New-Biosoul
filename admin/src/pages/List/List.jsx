@@ -116,7 +116,7 @@ const List = () => {
               <>
                 <span>{item.name}</span>
                 <span>{item.category}</span>
-                <span>${item.price}</span>
+                <span>Rs {item.price}</span>
               </>
             )}
             {/* <div className="list-actions ">

@@ -5,6 +5,12 @@
   align-items: center;
 }
 
+.navbar-auth-buttons{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .navbar .logo {
   width: 80px;
 }

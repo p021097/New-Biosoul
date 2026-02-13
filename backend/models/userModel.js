@@ -6,7 +6,8 @@ const userSchema = new mongoose.Schema(
         email: { type: String, required: true, unique: true },
         password: { type: String, required: true },
         role: { type: String, enum: ['user', 'sales', 'admin'], default: 'user' },
-        cartData:{type:Object, default:{}}
+        cartData:{type:Object, default:{}},
+        isAdmin:{type:Boolean, default:false}
     },
     { timestamps: true, minimize: false
     }

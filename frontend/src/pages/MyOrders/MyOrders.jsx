@@ -3,8 +3,6 @@ import { useContext } from "react";
 import { StoreContext } from "../../Context/StoreContext";
 import { assets } from "../../assets/assets";
 
-
-
 const MyOrders = () => {
   const { fetchOrders, orderData } = useContext(StoreContext);
 
@@ -15,7 +13,11 @@ const MyOrders = () => {
         {orderData.map((order, index) => {
           return (
             <div className="my-orders-order" key={index}>
-              <img src={assets.parcel_icon} alt="" />
+              <div>
+                <img src={assets.parcel_icon} alt="" />
+                <p> Order Id : {order._id}</p>
+              </div>
+
               <p>
                 {order.items.map((item, index) => {
                   if (index === order.items.length - 1) {

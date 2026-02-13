@@ -23,6 +23,31 @@ const loginUser = async (req, res) => {
     }
 };
 
+// Admin Login
+const loginAdmin = async(req,res)=>{
+  const {email, password} = req.body;
+  try {
+    const user = await userModel.findOne({email});
+    if(!user){
+      return res.json({success:false, message:"Admin doesn't exist"})
+    }
+    if(!user.isAdmin){
+      return res.json({success:false, message:"Not Authorised"})
+    }
+    const isMatch = await bcrypt.compare(password,user.password);
+    if(!isMatch){
+      return res.json({success:false, message:"Invalid credentials"})
+    }
+    const token = createToken(user._id);
+    res.json({success:true, token});
+  } catch (error) {
+    return res.json({success:false, message:"Error in admin login"})
+  }
+}
+
+
+
+
 // Create token
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET);
@@ -73,4 +98,4 @@ const registerUser = async (req, res) => {
   }
 };
 
-export { loginUser, registerUser };
+export { loginUser, registerUser, loginAdmin };

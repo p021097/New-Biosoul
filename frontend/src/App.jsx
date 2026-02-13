@@ -12,13 +12,13 @@ import Verify from "./pages/Verify/Verify.jsx";
 import MyOrders from "./pages/MyOrders/MyOrders.jsx";
 
 const App = () => {
-  const [showLogin, setShowLogin] = useState(false);
+  const [loginModal, setLoginModal] = useState({open:false, role:"user"});
   return (
     <>
     <ToastContainer />
-      {showLogin ? <LoginPopup setShowLogin={setShowLogin}/> : <></>}
+      {loginModal.open ? (<LoginPopup setShowLogin={setLoginModal} role={setLoginModal.role}/>) : <></>}
       <div className="app">
-        <Navbar setShowLogin={setShowLogin} />
+        <Navbar setShowLogin={setLoginModal} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
