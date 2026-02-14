@@ -11,8 +11,8 @@ const Verify = () => {
     const [searchParams,setSearchParams ] = useSearchParams();
     const success = searchParams.get("success");
     const orderId = searchParams.get("orderId");
-    // const {url} = useContext(StoreContext);
-    const url = "https://new-biosoul-frontend.onrender.com"
+    const {url} = useContext(StoreContext);
+    // const url = "https://new-biosoul-frontend.onrender.com"
     const navigate = useNavigate();
 
 
