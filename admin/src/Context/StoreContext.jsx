@@ -3,9 +3,10 @@ export const StoreContext = createContext(null);
 import axios from "axios";
 import { toast } from "react-toastify";
 
-
 const StoreContextProvider = (props) => {
   const url = "https://new-biosoul-backend.onrender.com";
+  // const url = "http://localhost:4000";
+  const frontendURL = "http://localhost:5174"
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [allOrders, setAllOrders] = useState([]);
@@ -25,40 +26,151 @@ const StoreContextProvider = (props) => {
     price: "",
   }); // State to hold the edited data
   const [editImage, setEditImage] = useState(null); // State to hold the new image file for editing
-  
-  
-  
-  
-  // Function to fetch all orders for admin panel
- 
-  const fetchAllOrders = async() =>{
-    const response = await axios.get(`${url}/api/order/list`);
-    if(response.data.success){
-      // toast.success(response.data.message)
-      setAllOrders(response.data.data)
-      console.log(response.data.data);
-      
-    }else{
-      toast.error(response.data.message)
+  // States for login and token
+  const [adminToken, setAdminToken] = useState(
+    (localStorage.getItem("adminToken") || ""),
+  );
+  const [adminProfile, setAdminProfile] = useState(()=>{
+    const saved = localStorage.getItem("adminProfile");
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [adminRequests, setAdminRequests] = useState([]);
+  const [admins, setAdmins] = useState([]);
+  const authHeaders = adminToken ? { headers: { token: adminToken } } : {};
+  const isSuperAdmin = !!adminProfile?.isSuperAdmin;
+
+  // Admin Login
+  const adminLogin = async (paylod) => {
+    const res = await axios.post(`${url}/api/admin/login`, paylod);
+    if (res.data.status) {
+      setAdminToken(res.data.token);
+      localStorage.setItem("adminToken", res.data.token);
+      localStorage.setItem("adminProfile", JSON.stringify(res.data.admin));
+      setAdminProfile(res.data.admin);
+      toast.success("Admin login successful");
+    } else {
+      toast.error(res.data.message);
+    }
+  };
+
+  // Admin logout
+  const adminLogout = () => {
+    setAdminToken("");
+    setAdminProfile(null);
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminProfile");
+    toast.success("Successful logout")
+
+  };
+
+  // Create Admin Request
+  const createAdminRequest = async (payload) => {
+    const res = await axios.post(`${url}/api/admin/admin-signup`, payload);
+    if (res.data.status || res.data.success) {
+      toast.success("Admin profile has been created and sent for approval");
+      return true
+    } else {
+      toast.error(res.data.message || "Unable to create admin request");
+      return false
+    }
+  };
+  // fetch admin requests
+  const fetchAdminrequests = async () => {
+    const res = await axios.get(`${url}/api/admin/requests`, authHeaders);
+    if (res.data.status) {
+      setAdminRequests(res.data.data);
+      // toast.success(res.data.message);
+    } else {
+      toast.error(res.data.message);
+    }
+  };
+
+// Fetch Admins
+  const fetchAdmins = async () => {
+    const res = await axios.get(`${url}/api/admin/list`, authHeaders);
+    if (res.data.success) {
+      setAdmins(res.data.data);
+      // toast.success(res.data.message);
+    } else {
+      toast.error(res.data.message);
     }
   }
 
+// Approve Request
+  const approveRequest = async (requestId) =>{
+    const res = await axios.post(`${url}/api/admin/requests/approve`, {requestId}, authHeaders)
+    if (res.data.success) {
+      toast.success(res.data.message);
+      fetchAdminrequests();
+      fetchAdmins();
+    } else {
+      toast.error(res.data.message);
+    }
+  }
+
+// Reject Request
+  const rejectRequest = async (requestId) =>{
+    const res = await axios.post(`${url}/api/admin/requests/reject`,{requestId},authHeaders);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      fetchAdminrequests();
+    } else {
+      toast.error(res.data.message);
+    }
+  }
+
+
+// Revoke Admin
+  const revokeAdmin = async (adminId) => {
+    const res = await axios.post(`${url}/api/admin/revoke`, {adminId}, authHeaders);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      fetchAdminrequests();
+    } else {
+      toast.error(res.data.message);
+    }
+  }
+
+// Restore Admin Access
+  const restoreAdminAccess = async (adminId) => {
+    const res = await axios.post(`${url}/api/admin/restore`,{adminId},authHeaders);
+    if (res.data.success) {
+      toast.success(res.data.message);
+      fetchAdmins();
+    } else {
+      toast.error(res.data.message);
+    }
+  }
+
+
+
+
+
+
+  // Function to fetch all orders for admin panel
+
+  const fetchAllOrders = async () => {
+    const response = await axios.get(`${url}/api/order/list`);
+    if (response.data.success) {
+      // toast.success(response.data.message)
+      setAllOrders(response.data.data);
+      console.log(response.data.data);
+    } else {
+      toast.error(response.data.message);
+    }
+  };
 
   // Order Status Handler
-  const statusHandler = async (event, orderId) =>{
-    const response = await axios.post(`${url}/api/order/status`,{orderId,status:event.target.value});
-    if(response.data.success){
+  const statusHandler = async (event, orderId) => {
+    const response = await axios.post(`${url}/api/order/status`, {
+      orderId,
+      status: event.target.value,
+    });
+    if (response.data.success) {
       await fetchAllOrders();
-      toast.success(response.data.message)
+      toast.success(response.data.message);
     }
-    
-  }
-
-
-
-
-
-
+  };
 
   const onChangeHandler = (e) => {
     const name = e.target.name;
@@ -162,14 +274,27 @@ const StoreContextProvider = (props) => {
     }
   };
 
+  // UseEffects
 
-
-// UseEffects
+  // useEffect(()=>{
+  //   if(adminToken){
+  //     fetchAdminrequests();
+  //     fetchAdmins();
+  //   }
+  // },[adminToken])
 
 
   useEffect(()=>{
+    if(adminToken && isSuperAdmin){
+      fetchAdminrequests();
+      fetchAdmins();
+    }
+  },[adminToken,isSuperAdmin])
+
+
+  useEffect(() => {
     fetchAllOrders();
-  },[])
+  }, []);
 
   useEffect(() => {
     if (image) {
@@ -209,7 +334,20 @@ const StoreContextProvider = (props) => {
     startEdit,
     allOrders,
     setAllOrders,
-    statusHandler
+    statusHandler,
+    adminToken,
+    adminProfile,
+    adminLogin,
+    adminLogout,
+    createAdminRequest,
+    adminRequests,
+    admins,
+    approveRequest,
+    rejectRequest,
+    revokeAdmin,
+    restoreAdminAccess,
+    frontendURL,
+    isSuperAdmin
   };
 
   return (

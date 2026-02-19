@@ -18,6 +18,10 @@
 
 }
 
+.footer-content-left img{
+    width: 15vw;
+}
+
 .footer-content-left, .footer-content-right , .footer-content-center{
     display: flex;
     flex-direction: column;
