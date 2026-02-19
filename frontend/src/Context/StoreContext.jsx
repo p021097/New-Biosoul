@@ -6,6 +6,8 @@ export const StoreContext = createContext(null);
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const url = "https://new-biosoul-backend.onrender.com";
+  // const url = "http://localhost:4000";
+  const adminURL = "http://localhost:5173";
   const [token, setToken] = useState("");
   const [food_list, setFoodList] = useState([]);
   const [orderData, setOrderData] = useState([]);
@@ -104,7 +106,8 @@ const fetchOrders = async () => {
     setToken,
     fetchOrders,
     orderData, 
-    setOrderData
+    setOrderData,
+    adminURL
   };
 
   return (

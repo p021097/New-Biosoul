@@ -150,3 +150,20 @@
     display: none;
   }
 }
+
+.more-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.more-dropdown {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  z-index: 5;
+  width: 130px;
+}

@@ -7,7 +7,7 @@ const Footer = () => {
     <div id="footer" className="footer">
       <div className="footer-content">
         <div className="footer-content-left">
-          <img src={assets.logo} alt="" />
+          <img src={assets.bsfb_logo} alt="" />
           <p>
             Lorem ipsum dolor sit amet consectetur, adipisicing elit. Corrupti
             necessitatibus sapiente accusamus, ducimus ab, culpa eligendi fugiat
@@ -33,13 +33,13 @@ const Footer = () => {
           <h2>GET IN TOUCH</h2>
           <ul>
             <li>+91 8564589585</li>
-            <li>contact@tomato.com</li>
+            <li>contact@bsfb.com</li>
           </ul>
         </div>
       </div>
       <hr />
       <p className="footer-copyright">
-        Copyright 2026 ©Tomato.com - All Right Reserved
+        Copyright 2026 ©Bsfb.com - All Right Reserved
       </p>
     </div>
   );
